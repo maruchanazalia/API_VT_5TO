@@ -4,8 +4,9 @@ module.exports = {
 
     create: (req, res) => {
         const body = req.body;
+        const userId = req.userId;
     
-        createPaciente(body, (err, results) => {
+        createPaciente(body,userId, (err, results) => {
             if (err) {
                 console.error(err);
                 return res.status(500).json({

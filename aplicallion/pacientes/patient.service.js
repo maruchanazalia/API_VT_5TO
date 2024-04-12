@@ -1,75 +1,68 @@
-const { query } = require("express");
 const pool = require("../../db/database");
 
-module.exports ={
-
-    createPaciente: (data, callBack) => {
-        const { nombre,apeMaterno, apePaterno,  fecha_nacimiento,sexo,idUser, ciudad, direccion, celular, telFijo } = data;
+module.exports = {
+    createPaciente: (data, idUser, callBack) => {
+        const { nombre, apeMaterno, apePaterno, fecha_nacimiento, sexo, ciudad, direccion, celular, telFijo } = data;
         const edad = calcularEdad(fecha_nacimiento); 
         pool.query(
-            `INSERT INTO pacientes (nombre,apeMaterno, apePaterno,  fecha_nacimiento,edad,sexo,idUser, ciudad, direccion, celular, telFijo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [nombre,apeMaterno, apePaterno,  fecha_nacimiento,edad,sexo,idUser, ciudad, direccion, celular, telFijo],
+            `INSERT INTO pacientes (nombre, apeMaterno, apePaterno, fecha_nacimiento, edad, sexo, id_user, ciudad, direccion, celular, telFijo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [nombre, apeMaterno, apePaterno, fecha_nacimiento, edad, sexo, idUser, ciudad, direccion, celular, telFijo],
             (error, results, fields) => {
-              if (error) {
+                if (error) {
+                    callBack(error);
+                    return;
+                }
+                callBack(null, results);
+            }
+        );
+    },
+    getPacientes: (callBack) => {
+        pool.query(`SELECT * FROM pacientes`, [], (error, results, fields) => {
+            if (error) {
                 callBack(error);
                 return;
-              }
-              callBack(null, results);
             }
-          );
-    },
-
-    getPacientes: (callBack) => {
-        pool.query(`select * from pacientes`, [], (error, results, fields) => {
-          if (error) {
-            callBack(error);
-          }
-          return callBack(null, results);
+            callBack(null, results);
         });
-      },
-
+    },
     getPatientByName: (nombre, callBack) => {
-        pool.query(`select * from pacientes where nombre=?`, [nombre], (error, results) => {
+        pool.query(`SELECT * FROM pacientes WHERE nombre=?`, [nombre], (error, results) => {
             if (error) {
-              callBack(error);
+                callBack(error);
+                return;
             }
-            return callBack(null, results[0]);
-          }
-        );
-      },
-
-      deletePatient: (data, callBack) => {
+            callBack(null, results[0]);
+        });
+    },
+    deletePatient: (data, callBack) => {
         pool.query(
-          `delete from pacientes where ID=?`,
-          [data.ID],
-          (error, results, fields) => {
-            if (error) {
-              callBack(error);
+            `DELETE FROM pacientes WHERE ID=?`,
+            [data.ID],
+            (error, results, fields) => {
+                if (error) {
+                    callBack(error);
+                    return;
+                }
+                callBack(null, results[0]);
             }
-            return callBack(null, results[0]);
-          }
         );
-      },
-
-      updatePatient: (data, callBack) => {
+    },
+    updatePatient: (data, callBack) => {
         const { ID, nombre, apeMaterno, apePaterno, fecha_nacimiento, sexo, ciudad, direccion, celular, telFijo } = data;
         const edad = calcularEdad(fecha_nacimiento); 
         pool.query(
-          `UPDATE pacientes SET nombre=?, apeMaterno=?, apePaterno=?, fecha_nacimiento=?, edad=?, sexo=?, ciudad=?, direccion=?, celular=?, telFijo=? WHERE ID=?`,
-          [nombre, apeMaterno, apePaterno, fecha_nacimiento, edad, sexo, ciudad, direccion, celular, telFijo, ID],
-          (error, results, fields) => {
-            if (error) {
-              callBack(error);
-              return;
+            `UPDATE pacientes SET nombre=?, apeMaterno=?, apePaterno=?, fecha_nacimiento=?, edad=?, sexo=?, ciudad=?, direccion=?, celular=?, telFijo=? WHERE ID=?`,
+            [nombre, apeMaterno, apePaterno, fecha_nacimiento, edad, sexo, ciudad, direccion, celular, telFijo, ID],
+            (error, results, fields) => {
+                if (error) {
+                    callBack(error);
+                    return;
+                }
+                callBack(null, results);
             }
-            callBack(null, results);
-          }
         );
     }
-     
-    
-
-}
+};
 
 function calcularEdad(fechaNacimiento) {
     const hoy = new Date();

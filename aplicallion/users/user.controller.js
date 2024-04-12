@@ -2,6 +2,7 @@ const { create, getUserByUserId,getUserByUserUsername, getUsers, deleteUser} = r
 const { genSaltSync, hashSync, compareSync } = require("bcrypt");
 const { sign } = require("jsonwebtoken");
 
+
 module.exports = {
 
   createUser: (req, res) => {
@@ -47,6 +48,7 @@ module.exports = {
           success: 1,
           message: "login Exitoso",
           token: jsontoken,
+          userId: results.ID,
         });
       } else {
         return res.json({
