@@ -1,6 +1,7 @@
-const { create, getUserByUserId,getUserByUserUsername, getUsers, deleteUser} = require("./user.service");
+const { create, getUserByUserId, getUserByUserUsername, getUsers, deleteUser } = require("./user.service");
 const { genSaltSync, hashSync, compareSync } = require("bcrypt");
 const { sign } = require("jsonwebtoken");
+
 
 
 module.exports = {
@@ -8,8 +9,8 @@ module.exports = {
   createUser: (req, res) => {
     const body = req.body;
     const saltRounds = Number(process.env.SALT_ROUNDS || 10);
-    const salt = genSaltSync(saltRounds); 
-    body.password = hashSync(body.password, salt); 
+    const salt = genSaltSync(saltRounds);
+    body.password = hashSync(body.password, salt);
     create(body, (err, results) => {
       if (err) {
         console.log(err);
@@ -23,8 +24,7 @@ module.exports = {
         data: results,
       });
     });
-},
-
+  },
 
   login: (req, res) => {
     const body = req.body;
@@ -44,11 +44,13 @@ module.exports = {
         const jsontoken = sign({ result: results }, "qwe1234", {
           expiresIn: "1h",
         });
+        const userId = module.exports.getUserIdFromResults(results);
+        console.log("User id : " + userId)
         return res.json({
           success: 1,
           message: "login Exitoso",
           token: jsontoken,
-          userId: results.ID,
+          userId: userId
         });
       } else {
         return res.json({
@@ -58,6 +60,8 @@ module.exports = {
       }
     });
   },
+
+
   getUserByUserId: (req, res) => {
     const id = req.params.id;
     getUserByUserId(id, (err, results) => {
@@ -77,6 +81,7 @@ module.exports = {
       });
     });
   },
+
   getUsers: (req, res) => {
     getUsers((err, results) => {
       if (err) {
@@ -89,6 +94,8 @@ module.exports = {
       });
     });
   },
+
+
   deleteUser: (req, res) => {
     const data = req.body;
     deleteUser(data, (err, results) => {
@@ -108,4 +115,15 @@ module.exports = {
       });
     });
   },
+
+  getUserIdFromResults: (results) => {
+    if (results && results.ID) {
+      const id = results.ID;
+      console.log("hola", results.ID);
+      return id;
+    } else {
+      return null;
+    }
+  }
+
 };

@@ -1,12 +1,15 @@
 const pool = require("../../db/database");
+const userController = require("../users/user.controller");
 
 module.exports = {
-    createPaciente: (data, idUser, callBack) => {
-        const { nombre, apeMaterno, apePaterno, fecha_nacimiento, sexo, ciudad, direccion, celular, telFijo } = data;
+    createPaciente: (data, results, callBack) => {
+        const { nombre, apeMaterno, apePaterno, fecha_nacimiento, sexo, userId, ciudad, direccion, celular, telFijo } = data;
         const edad = calcularEdad(fecha_nacimiento); 
+
+
         pool.query(
             `INSERT INTO pacientes (nombre, apeMaterno, apePaterno, fecha_nacimiento, edad, sexo, id_user, ciudad, direccion, celular, telFijo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [nombre, apeMaterno, apePaterno, fecha_nacimiento, edad, sexo, idUser, ciudad, direccion, celular, telFijo],
+            [nombre, apeMaterno, apePaterno, fecha_nacimiento, edad, sexo, userId, ciudad, direccion, celular, telFijo],
             (error, results, fields) => {
                 if (error) {
                     callBack(error);
@@ -16,6 +19,7 @@ module.exports = {
             }
         );
     },
+
     getPacientes: (callBack) => {
         pool.query(`SELECT * FROM pacientes`, [], (error, results, fields) => {
             if (error) {
@@ -25,6 +29,7 @@ module.exports = {
             callBack(null, results);
         });
     },
+
     getPatientByName: (nombre, callBack) => {
         pool.query(`SELECT * FROM pacientes WHERE nombre=?`, [nombre], (error, results) => {
             if (error) {
@@ -34,6 +39,7 @@ module.exports = {
             callBack(null, results[0]);
         });
     },
+
     deletePatient: (data, callBack) => {
         pool.query(
             `DELETE FROM pacientes WHERE ID=?`,
@@ -47,6 +53,7 @@ module.exports = {
             }
         );
     },
+
     updatePatient: (data, callBack) => {
         const { ID, nombre, apeMaterno, apePaterno, fecha_nacimiento, sexo, ciudad, direccion, celular, telFijo } = data;
         const edad = calcularEdad(fecha_nacimiento); 
@@ -62,6 +69,7 @@ module.exports = {
             }
         );
     }
+    
 };
 
 function calcularEdad(fechaNacimiento) {
